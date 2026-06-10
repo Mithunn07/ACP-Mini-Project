@@ -1,0 +1,284 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define ROWS 25
+#define COLS 60
+
+char canvas[ROWS][COLS];
+
+/* Initialize canvas */
+void initCanvas()
+{
+    int i, j;
+    for(i = 0; i < ROWS; i++)
+        for(j = 0; j < COLS; j++)
+            canvas[i][j] = '_';
+}
+
+/* Display canvas */
+void displayCanvas()
+{
+    int i, j;
+
+    printf("\n");
+    for(i = 0; i < ROWS; i++)
+    {
+        for(j = 0; j < COLS; j++)
+            printf("%c", canvas[i][j]);
+        printf("\n");
+    }
+}
+
+/* Plot a point */
+void plot(int x, int y, char ch)
+{
+    if(x >= 0 && x < ROWS && y >= 0 && y < COLS)
+        canvas[x][y] = ch;
+}
+
+/* Draw line using DDA */
+void drawLine(int x1, int y1, int x2, int y2, char ch)
+{
+    float dx = x2 - x1;
+    float dy = y2 - y1;
+
+    int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+
+    float xInc = dx / steps;
+    float yInc = dy / steps;
+
+    float x = x1;
+    float y = y1;
+
+    int i;
+    for(i = 0; i <= steps; i++)
+    {
+        plot((int)(x + 0.5), (int)(y + 0.5), ch);
+        x += xInc;
+        y += yInc;
+    }
+}
+
+/* Draw rectangle */
+void drawRectangle(int x, int y, int width, int height, char ch)
+{
+    drawLine(x, y, x, y + width, ch);
+    drawLine(x + height, y, x + height, y + width, ch);
+    drawLine(x, y, x + height, y, ch);
+    drawLine(x, y + width, x + height, y + width, ch);
+}
+
+/* Draw triangle */
+void drawTriangle(int x1,int y1,
+                  int x2,int y2,
+                  int x3,int y3,
+                  char ch)
+{
+    drawLine(x1,y1,x2,y2,ch);
+    drawLine(x2,y2,x3,y3,ch);
+    drawLine(x3,y3,x1,y1,ch);
+}
+
+/* Draw circle */
+void drawCircle(int xc, int yc, int r, char ch)
+{
+    int x, y;
+
+    for(x = 0; x < ROWS; x++)
+    {
+        for(y = 0; y < COLS; y++)
+        {
+            int d = (x - xc)*(x - xc) +
+                    (y - yc)*(y - yc);
+
+            if(abs(d - r*r) <= r)
+                plot(x, y, ch);
+        }
+    }
+}
+
+int main()
+{
+    int choice;
+
+    initCanvas();
+
+    while(1)
+    {
+        printf("\n===== 2D GRAPHICS EDITOR =====\n");
+        printf("1. Draw Line\n");
+        printf("2. Draw Rectangle\n");
+        printf("3. Draw Triangle\n");
+        printf("4. Draw Circle\n");
+        printf("5. Delete Line\n");
+        printf("6. Delete Rectangle\n");
+        printf("7. Delete Triangle\n");
+        printf("8. Delete Circle\n");
+        printf("9. Modify Object\n");
+        printf("10. Display Canvas\n");
+        printf("0. Exit\n");
+
+        printf("Enter choice: ");
+        scanf("%d",&choice);
+
+        if(choice == 0)
+            break;
+
+        switch(choice)
+        {
+            case 1:
+            {
+                int x1,y1,x2,y2;
+                printf("Enter x1 y1 x2 y2: ");
+                scanf("%d%d%d%d",&x1,&y1,&x2,&y2);
+
+                drawLine(x1,y1,x2,y2,'*');
+                break;
+            }
+
+            case 2:
+            {
+                int x,y,w,h;
+                printf("Enter top-left x y width height: ");
+                scanf("%d%d%d%d",&x,&y,&w,&h);
+
+                drawRectangle(x,y,w,h,'*');
+                break;
+            }
+
+            case 3:
+            {
+                int x1,y1,x2,y2,x3,y3;
+                printf("Enter 3 vertices: ");
+                scanf("%d%d%d%d%d%d",
+                      &x1,&y1,&x2,&y2,&x3,&y3);
+
+                drawTriangle(x1,y1,x2,y2,x3,y3,'*');
+                break;
+            }
+
+            case 4:
+            {
+                int xc,yc,r;
+                printf("Enter center x y and radius: ");
+                scanf("%d%d%d",&xc,&yc,&r);
+
+                drawCircle(xc,yc,r,'*');
+                break;
+            }
+
+            /* Delete = redraw with '_' */
+
+            case 5:
+            {
+                int x1,y1,x2,y2;
+                printf("Enter line coordinates: ");
+                scanf("%d%d%d%d",&x1,&y1,&x2,&y2);
+
+                drawLine(x1,y1,x2,y2,'_');
+                break;
+            }
+
+            case 6:
+            {
+                int x,y,w,h;
+                printf("Enter rectangle data: ");
+                scanf("%d%d%d%d",&x,&y,&w,&h);
+
+                drawRectangle(x,y,w,h,'_');
+                break;
+            }
+
+            case 7:
+            {
+                int x1,y1,x2,y2,x3,y3;
+                printf("Enter triangle vertices: ");
+                scanf("%d%d%d%d%d%d",
+                      &x1,&y1,&x2,&y2,&x3,&y3);
+
+                drawTriangle(x1,y1,x2,y2,x3,y3,'_');
+                break;
+            }
+
+            case 8:
+            {
+                int xc,yc,r;
+                printf("Enter circle data: ");
+                scanf("%d%d%d",&xc,&yc,&r);
+
+                drawCircle(xc,yc,r,'_');
+                break;
+            }
+
+            case 9:
+            {
+                int type;
+                printf("\n1.Line 2.Rectangle 3.Triangle 4.Circle\n");
+                printf("Select object type: ");
+                scanf("%d",&type);
+
+                if(type == 1)
+                {
+                    int x1,y1,x2,y2;
+                    printf("Old line x1 y1 x2 y2: ");
+                    scanf("%d%d%d%d",&x1,&y1,&x2,&y2);
+                    drawLine(x1,y1,x2,y2,'_');
+
+                    printf("New line x1 y1 x2 y2: ");
+                    scanf("%d%d%d%d",&x1,&y1,&x2,&y2);
+                    drawLine(x1,y1,x2,y2,'*');
+                }
+                else if(type == 2)
+                {
+                    int x,y,w,h;
+
+                    printf("Old rectangle x y w h: ");
+                    scanf("%d%d%d%d",&x,&y,&w,&h);
+                    drawRectangle(x,y,w,h,'_');
+
+                    printf("New rectangle x y w h: ");
+                    scanf("%d%d%d%d",&x,&y,&w,&h);
+                    drawRectangle(x,y,w,h,'*');
+                }
+                else if(type == 3)
+                {
+                    int x1,y1,x2,y2,x3,y3;
+
+                    printf("Old triangle vertices: ");
+                    scanf("%d%d%d%d%d%d",
+                          &x1,&y1,&x2,&y2,&x3,&y3);
+                    drawTriangle(x1,y1,x2,y2,x3,y3,'_');
+
+                    printf("New triangle vertices: ");
+                    scanf("%d%d%d%d%d%d",
+                          &x1,&y1,&x2,&y2,&x3,&y3);
+                    drawTriangle(x1,y1,x2,y2,x3,y3,'*');
+                }
+                else if(type == 4)
+                {
+                    int xc,yc,r;
+
+                    printf("Old circle x y r: ");
+                    scanf("%d%d%d",&xc,&yc,&r);
+                    drawCircle(xc,yc,r,'_');
+
+                    printf("New circle x y r: ");
+                    scanf("%d%d%d",&xc,&yc,&r);
+                    drawCircle(xc,yc,r,'*');
+                }
+
+                break;
+            }
+
+            case 10:
+                displayCanvas();
+                break;
+
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+
+    return 0;
+}
