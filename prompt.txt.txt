@@ -1,0 +1,64 @@
+Here's a detailed prompt that would reproduce that exact code:
+
+---
+
+**Prompt:**
+
+Write a complete C program that implements a text-based 2D graphics editor using an ASCII character canvas. The program must meet the following exact specifications:
+
+**Canvas:**
+- A global 2D char array named `canvas` with dimensions `ROWS = 25` and `COLS = 60`, defined using `#define`
+- Background/empty character is underscore `'_'`
+- Drawing character is asterisk `'*'`
+
+**Functions to implement:**
+
+1. `void initCanvas()` — fills every cell of the canvas with `'_'`
+
+2. `void displayCanvas()` — prints a newline, then prints every row character by character, followed by a newline per row
+
+3. `void plot(int x, int y, char ch)` — sets `canvas[x][y] = ch` only if x and y are within bounds
+
+4. `void drawLine(int x1, int y1, int x2, int y2, char ch)` — implements the **DDA (Digital Differential Analyzer)** algorithm using `float` for `dx`, `dy`, `xInc`, `yInc`, `x`, `y`; steps = max of abs(dx) and abs(dy); uses `x + 0.5` rounding when calling `plot`
+
+5. `void drawRectangle(int x, int y, int width, int height, char ch)` — draws 4 sides using `drawLine`: top, bottom, left, right edges based on top-left corner `(x,y)`, width, and height
+
+6. `void drawTriangle(int x1,int y1, int x2,int y2, int x3,int y3, char ch)` — draws 3 edges using `drawLine`
+
+7. `void drawCircle(int xc, int yc, int r, char ch)` — uses a **brute-force pixel scan** over the entire canvas; for each `(x,y)` cell computes `d = (x-xc)² + (y-yc)²` and plots if `abs(d - r*r) <= r`
+
+**`main()` function:**
+- Calls `initCanvas()` once at startup
+- Runs an infinite `while(1)` loop with a menu numbered **0–10**:
+
+```
+===== 2D GRAPHICS EDITOR =====
+1. Draw Line
+2. Draw Rectangle
+3. Draw Triangle
+4. Draw Circle
+5. Delete Line
+6. Delete Rectangle
+7. Delete Triangle
+8. Delete Circle
+9. Modify Object
+10. Display Canvas
+0. Exit
+```
+
+- Cases 1–4: prompt for coordinates and draw with `'*'`
+- Cases 5–8: prompt for the **same coordinate inputs** as their draw counterparts, but redraw with `'_'` (delete by overwriting)
+- Case 9 (Modify): asks for sub-type (1=Line, 2=Rectangle, 3=Triangle, 4=Circle), takes **old** coordinates → erases with `'_'`, then takes **new** coordinates → draws with `'*'`
+- Case 10: calls `displayCanvas()`
+- Default: prints `"Invalid choice!"`
+- Choice 0: `break`s out of the loop
+
+**Other requirements:**
+- Include `<stdio.h>`, `<stdlib.h>`, `<math.h>`
+- Use `int i, j` declarations at the top of loops (C89/C90 style) in `initCanvas` and `displayCanvas`
+- All `scanf` calls use `%d` with `&` for individual integers
+- No structs, no dynamic memory, no object tracking — shapes are not stored, just painted onto the canvas
+
+---
+
+That prompt captures every design decision, algorithm choice, variable name, and behavioral detail needed to reproduce the code exactly.
